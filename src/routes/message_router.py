@@ -46,8 +46,8 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     return JSONResponse(content="Message sent successfully.")
 
 
-@message_router.post("/", status_code=status.HTTP_200_OK)
-def response(user: auth_deps, db: db_deps):
+@message_router.post("/rta", status_code=status.HTTP_200_OK)
+def response():
 
     print("llegao algo")
     return "OK"
