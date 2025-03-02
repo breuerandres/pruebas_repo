@@ -27,21 +27,7 @@ auth_deps = Annotated[dict, Depends(jwt.verify_access_token)]
 
 @message_router.post("/", status_code=status.HTTP_200_OK)
 def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
-    '''
-    template db.query(templates).(id)
 
-    twilio_params = {
-        "messagingServiceSid": template.messagingServiceSid
-        "to": f'whatsapp:{body.telefono}', dspues no...
-        "contentId": template.contentId,
-        "variables": {"1":body.vehiculo}
-    }
-
-
-
-
-    TwilioClient().send_message(**twilio_params)
-    '''
     twilio_params_1 = {
 
         "to": body.telefono,
@@ -60,22 +46,23 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     return JSONResponse(content="Message sent successfully.")
 
 
-@message_router.post("/rta", status_code=status.HTTP_200_OK)
+@message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(req: Request):
     print("llega algo")
     form_data = await req.form()
-    telefono = form_data.From
-    rtas_correctas = [1, 2, 3, 4, 5]
+    telefono = form_data["From"]
+    print(telefono)
+    rtas_correctas = ['1', '2', '3', '4', '5']
     twilio_params = {
         "to": telefono,
     }
 
-    if (form_data.Body not in rtas_correctas):
+    if (form_data["Body"] not in rtas_correctas):
         twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
         TwilioClient().send_message(**twilio_params)
         return "OK con error de input"
 
-    nro_pregunta, puntaje = form_data.ListId.split("-")
+    nro_pregunta, puntaje = form_data["ListId"].split("-")
 
     if (nro_pregunta == "pregunta_1"):
         twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
