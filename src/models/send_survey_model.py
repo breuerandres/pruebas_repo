@@ -7,6 +7,7 @@ class SendSurvey(BaseModel):
     id_evento: int | None = None
     id_campania: int | None = None
     id_empresa: int | None = None
+    id_encuesta: int | None = None
 
 
 class SurveyResponse(BaseModel):

@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-
+from src.utils.preguntas import preguntas
 from requests import Session
 from src.utils.twilio_client import TwilioClient
 from src.models.send_survey_model import SendSurvey
@@ -27,16 +27,27 @@ auth_deps = Annotated[dict, Depends(jwt.verify_access_token)]
 
 @message_router.post("/", status_code=status.HTTP_200_OK)
 def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
+    '''
+    template db.query(templates).(id)
 
-    params = {
-        "to": body.to_phone,
-        "body": body.body if hasattr(body, "body") else None,
-        "contentId": body.contentId if hasattr(body, "contentId") else None,
-
+    twilio_params = {
+        "messagingServiceSid": template.messagingServiceSid
+        "to": f'whatsapp:{body.telefono}', dspues no...
+        "contentId": template.contentId,
+        "variables": {"1":body.vehiculo}
     }
 
-    params = {k: v for k, v in params.items() if v is not None}
 
-    # TwilioClient().send_message(**params)
+
+
+    TwilioClient().send_message(**twilio_params)
+    '''
 
     return JSONResponse(content="Message sent successfully.")
+
+
+@message_router.post("/", status_code=status.HTTP_200_OK)
+def response(user: auth_deps, db: db_deps):
+
+    print("llegao algo")
+    return "OK"
