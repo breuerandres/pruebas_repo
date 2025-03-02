@@ -47,7 +47,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
 
 @message_router.post("/rta", status_code=status.HTTP_200_OK)
-def response():
+def response(body):
 
-    print("llegao algo")
+    print("llegao algo", body)
     return "OK"
