@@ -58,10 +58,10 @@ async def response(req: Request):
         "to": form_data['From'],
     }
 
-    if (puntaje not in rtas_correctas):
-        twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
-        TwilioClient().send_message(**twilio_params)
-        return "OK con error de input"
+    # if (puntaje not in rtas_correctas):
+    #     twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
+    #     TwilioClient().send_message(**twilio_params)
+    #     return "OK con error de input"
 
     if (nro_pregunta == "pregunta_1"):
         twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
