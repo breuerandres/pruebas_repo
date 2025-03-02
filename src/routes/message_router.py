@@ -52,11 +52,10 @@ async def response(req: Request):
     form_data = await req.form()
     body = form_data["Body"]
     nro_pregunta, puntaje = form_data["ListId"].split("-")
-    print(body)
-    print(form_data["ListId"])
+    print(form_data['From'])
     rtas_correctas = ['1', '2', '3', '4', '5']
     twilio_params = {
-        "to": telefono,
+        "to": form_data['From'],
     }
 
     if (puntaje not in rtas_correctas):
