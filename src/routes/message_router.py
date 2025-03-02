@@ -50,19 +50,19 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 async def response(req: Request):
     print("llega algo")
     form_data = await req.form()
-    telefono = form_data["From"]
-    print(telefono)
+    body = form_data["Body"]
+    nro_pregunta, puntaje = form_data["ListId"].split("-")
+    print(body)
+    print(form_data["ListId"])
     rtas_correctas = ['1', '2', '3', '4', '5']
     twilio_params = {
         "to": telefono,
     }
 
-    if (form_data["Body"] not in rtas_correctas):
+    if (puntaje not in rtas_correctas):
         twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
         TwilioClient().send_message(**twilio_params)
         return "OK con error de input"
-
-    nro_pregunta, puntaje = form_data["ListId"].split("-")
 
     if (nro_pregunta == "pregunta_1"):
         twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
