@@ -30,13 +30,13 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
     twilio_params_1 = {
 
-        "to": body.telefono,
+        "to": f"whatsapp:{body.telefono}",
         "content_sid": "HXcc7b0205fce2cf89d8373ba5adc6d3b2",
         "content_variables": '{"1": "Gustavo Veliz","2": "audi"}'
     }
     twilio_params_2 = {
 
-        "to": body.telefono,
+        "to": f"whatsapp:{body.telefono}",
         "content_sid": "HX4f5d7038e7eddb005bacf74870863df2",
         "content_variables": '{"1": "audi"}'
     }
