@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from src.utils.preguntas import preguntas
 from requests import Session
@@ -42,12 +42,31 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
     TwilioClient().send_message(**twilio_params)
     '''
+    twilio_params_1 = {
+
+        "to": body.telefono,
+        "content_sid": "HXcc7b0205fce2cf89d8373ba5adc6d3b2",
+        "content_variables": '{"1": "Gustavo Veliz","2": "audi"}'
+    }
+    twilio_params_2 = {
+
+        "to": body.telefono,
+        "content_sid": "HX6e6403003036e8cdc717ca432d033783",
+        "content_variables": '{"1": "audi"}'
+    }
+    TwilioClient().send_message(**twilio_params_1)
+    TwilioClient().send_message(**twilio_params_2)
 
     return JSONResponse(content="Message sent successfully.")
 
 
 @message_router.post("/rta", status_code=status.HTTP_200_OK)
-def response(body):
+async def response(req: Request):
+    form_data = await req.form()
 
-    print("llegao algo", body)
+    print("Datos recibidos en el webhook:")
+    for key, value in form_data.items():
+        print(f"{key}: {value}")
+
+    print("llegao algo")
     return "OK"
