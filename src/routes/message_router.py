@@ -51,7 +51,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     twilio_params_2 = {
 
         "to": body.telefono,
-        "content_sid": "HX6e6403003036e8cdc717ca432d033783",
+        "content_sid": "HX4f5d7038e7eddb005bacf74870863df2",
         "content_variables": '{"1": "audi"}'
     }
     TwilioClient().send_message(**twilio_params_1)
@@ -62,11 +62,38 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
 @message_router.post("/rta", status_code=status.HTTP_200_OK)
 async def response(req: Request):
+    print("llega algo")
     form_data = await req.form()
+    telefono = form_data.From
+    rtas_correctas = [1, 2, 3, 4, 5]
+    twilio_params = {
+        "to": telefono,
+    }
 
-    print("Datos recibidos en el webhook:")
-    for key, value in form_data.items():
-        print(f"{key}: {value}")
+    if (form_data.Body not in rtas_correctas):
+        twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
+        TwilioClient().send_message(**twilio_params)
+        return "OK con error de input"
 
-    print("llegao algo")
+    nro_pregunta, puntaje = form_data.ListId.split("-")
+
+    if (nro_pregunta == "pregunta_1"):
+        twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
+        TwilioClient().send_message(**twilio_params)
+        return "OK Pregunta 1"
+
+    elif (nro_pregunta == "pregunta_2"):
+        twilio_params["content_sid"] = "HX61f3f5adaf444d5672eb50b868a18756"
+        TwilioClient().send_message(**twilio_params)
+        return "OK Pregunta 2"
+
+    elif (nro_pregunta == "pregunta_3"):
+        twilio_params["content_sid"] = "HX7f7f50fd90601a03d0fb9ecc6cd7390c"
+        TwilioClient().send_message(**twilio_params)
+        return "OK Pregunta 3"
+
+    # print("Datos recibidos en el webhook:")
+    # for key, value in form_data.items():
+    #     print(f"{key}: {value}")
+
     return "OK"
