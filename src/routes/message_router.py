@@ -89,7 +89,9 @@ async def response(req: Request):
 
     elif (nro_pregunta == "pregunta_3"):
         twilio_params["content_sid"] = "HX7f7f50fd90601a03d0fb9ecc6cd7390c"
+        twilio_params["content_variables"] = '{"1": "Gustavo"}'
         TwilioClient().send_message(**twilio_params)
+
         return "OK Pregunta 3"
 
     # print("Datos recibidos en el webhook:")
