@@ -50,9 +50,11 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 async def response(req: Request):
     print("llega algo")
     print("Datos recibidos en el webhook:")
+    form_data = await req.form()
+
     for key, value in form_data.items():
         print(f"{key}: {value}")
-    form_data = await req.form()
+
     body = form_data["Body"]
     nro_pregunta, puntaje = form_data["ListId"].split("-")
     print(form_data['From'])
