@@ -62,7 +62,11 @@ async def response(req: Request):
         "to": form_data['From'],
     }
 
-    if (not form_data["ListId"]):
+    listid_data = form_data["ListId"]
+
+    print(listid_data)
+
+    if not listid_data:
         twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
         TwilioClient().send_message(**twilio_params)
         return "OK con error de input"
