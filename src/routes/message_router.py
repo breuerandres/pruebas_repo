@@ -51,11 +51,15 @@ async def response(req: Request):
     print("llega algo")
     print("Datos recibidos en el webhook:")
     form_data = await req.form()
+    print("Tipo de form_data:", type(form_data))
 
     for key, value in form_data.items():
         print(f"{key}: {value}")
 
+    print("Claves en form_data:", list(form_data.keys()))
+
     if "ListId" not in form_data:
+        print("No habia listid")
         twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
         TwilioClient().send_message(**twilio_params)
         return "OK con error de input"
