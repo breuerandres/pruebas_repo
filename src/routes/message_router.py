@@ -55,6 +55,9 @@ async def response(req: Request):
     for key, value in form_data.items():
         print(f"{key}: {value}")
 
+    twilio_params = {
+        "to": form_data['From'],
+    }
     if "ListId" not in form_data.keys():
 
         print("No habia listid")
@@ -70,10 +73,6 @@ async def response(req: Request):
 
     nro_pregunta, puntaje = form_data["ListId"].split("-")
     print(form_data['From'])
-
-    twilio_params = {
-        "to": form_data['From'],
-    }
 
     if (nro_pregunta == "pregunta_1"):
         twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
