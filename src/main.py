@@ -8,6 +8,7 @@ from src.db.databases import engine
 
 
 app = FastAPI()
+
 app.title = "Encuestas Whastapp API"
 app.version = "0.0.1"
 
@@ -19,3 +20,8 @@ app.add_middleware(HttpErrorHandler)
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 # app.include_router(user_router, prefix="/users", tags=["Users"])
 app.include_router(message_router, prefix="/survey", tags=["Survey"])
+
+
+@app.get("/")
+def healthcheck():
+    return {"status": "ok"}

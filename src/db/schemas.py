@@ -20,14 +20,15 @@ class Templates(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     descripcion = Column(String(100), nullable=False)
-    contentId = Column(String(100), nullable=False)
-    messagingServiceSid = Column(String(100), nullable=False)
+    id_contenido = Column(String(100), nullable=False)
+    id_servicio_mensajeria = Column(String(100), nullable=False)
 
 
 class Surveys(Base):
     __tablename__ = "encuestas"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_encuesta = Column(Integer, nullable=False)
     id_usuario = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     id_empresa = Column(Integer, nullable=False)
     id_template = Column(Integer, ForeignKey('templates.id'), nullable=False)
@@ -44,5 +45,6 @@ class SurveyQuestions(Base):
     id_evento = Column(Integer, nullable=False)
     id_pregunta = Column(Integer, nullable=False)
     id_respuesta = Column(Integer, nullable=False)
+    id_mensaje = Column(String(100), nullable=False)
     created_at = Column(TIMESTAMP, nullable=False,
                         default=datetime.now(timezone.utc))

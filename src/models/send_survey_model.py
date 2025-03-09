@@ -3,11 +3,12 @@ from pydantic import BaseModel
 
 class SendSurvey(BaseModel):
     telefono: str
-    vehiculo: str | None = None
-    id_evento: int | None = None
-    id_campania: int | None = None
-    id_empresa: int | None = None
-    id_encuesta: int | None = None
+    vehiculo: str
+    nombre: str
+    id_evento: int
+    id_campania: int
+    id_empresa: int
+    id_encuesta: int
 
 
 class SurveyResponse(BaseModel):

@@ -49,6 +49,9 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(req: Request):
     print("llega algo")
+    print("Datos recibidos en el webhook:")
+    for key, value in form_data.items():
+        print(f"{key}: {value}")
     form_data = await req.form()
     body = form_data["Body"]
     nro_pregunta, puntaje = form_data["ListId"].split("-")
@@ -79,9 +82,5 @@ async def response(req: Request):
         TwilioClient().send_message(**twilio_params)
 
         return "OK Pregunta 3"
-
-    # print("Datos recibidos en el webhook:")
-    # for key, value in form_data.items():
-    #     print(f"{key}: {value}")
 
     return "OK"
