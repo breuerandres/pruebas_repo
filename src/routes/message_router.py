@@ -55,17 +55,17 @@ async def response(req: Request):
     for key, value in form_data.items():
         print(f"{key}: {value}")
 
+    if not "ListId" in form_data:
+        twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
+        TwilioClient().send_message(**twilio_params)
+        return "OK con error de input"
+
     nro_pregunta, puntaje = form_data["ListId"].split("-")
     print(form_data['From'])
 
     twilio_params = {
         "to": form_data['From'],
     }
-
-    if not "ListId" in form_data:
-        twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
-        TwilioClient().send_message(**twilio_params)
-        return "OK con error de input"
 
     if (nro_pregunta == "pregunta_1"):
         twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
