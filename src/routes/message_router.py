@@ -1,12 +1,13 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import JSONResponse
-from src.utils.preguntas import preguntas
+from src.db.schemas import Surveys
 from requests import Session
 from src.utils.twilio_client import TwilioClient
 from src.models.send_survey_model import SendSurvey
 from src.auth.jwt_service import JWTService
 from src.db.databases import local_session
+import json
 
 message_router = APIRouter()
 
@@ -26,32 +27,55 @@ auth_deps = Annotated[dict, Depends(jwt.verify_access_token)]
 
 
 @message_router.post("/", status_code=status.HTTP_200_OK)
-def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
+def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Response):
+    survey_model = Surveys(
+        id_encuesta=int(body.id_encuesta),
+        id_empresa=int(user["id_empresa"]),
+        id_campania=int(body.id_campania)
+    )
+
+    db.add(survey_model)
+    db.commit()
+
+    cookie_dic = {
+        "nombre": body.nombre,
+        "vehiculo": body.vehiculo,
+        "sucursal": body.sucursal
+
+    }
+
+    variables_param_1 = {"1": f"{body.nombre}", "2": f"{body.sucursal}"}
+    variables_param_2 = {"1": f"{body.vehiculo}"}
 
     twilio_params_1 = {
 
         "to": f"whatsapp:{body.telefono}",
         "content_sid": "HXcc7b0205fce2cf89d8373ba5adc6d3b2",
-        "content_variables": '{"1": "Gustavo Veliz","2": "audi"}'
+        "content_variables": json.dumps(variables_param_1)
     }
     twilio_params_2 = {
 
         "to": f"whatsapp:{body.telefono}",
         "content_sid": "HX4f5d7038e7eddb005bacf74870863df2",
-        "content_variables": '{"1": "audi"}'
+        "content_variables": json.dumps(variables_param_2)
     }
+
     TwilioClient().send_message(**twilio_params_1)
     TwilioClient().send_message(**twilio_params_2)
 
-    return JSONResponse(content="Message sent successfully.")
+    response = JSONResponse(content="Message sent successfully.")
+
+    response.set_cookie(key=f"{body.telefono}",
+                        value=json.dumps(cookie_dic))
+
+    return response
 
 
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(req: Request):
-    print("llega algo")
-    print("Datos recibidos en el webhook:")
     form_data = await req.form()
 
+    print("Datos recibidos en el webhook:")
     for key, value in form_data.items():
         print(f"{key}: {value}")
 

@@ -5,9 +5,9 @@ class SendSurvey(BaseModel):
     telefono: str
     vehiculo: str
     nombre: str
+    sucursal: str
     id_evento: int
     id_campania: int
-    id_empresa: int
     id_encuesta: int
 
 
@@ -16,7 +16,6 @@ class SurveyResponse(BaseModel):
     id_evento: int
     id_pregunta: int
     id_respuesta: int
-    id_empresa: int | None = None
     id_campania: int | None = None
     id_usuario: int | None = None
     id_template: int | None = None

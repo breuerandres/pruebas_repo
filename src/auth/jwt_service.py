@@ -20,9 +20,8 @@ class JWTService:
 
         expires = datetime.now(timezone.utc) + \
             timedelta(minutes=self.expiration)
-        encode = {"sub": f"id: {user_data.id}", "user": user_data.user,
-                  "id_empresa": user_data.id_empresa,
-                  "razon_social": user_data.razon_social
+        encode = {"sub": f"{user_data.id}", "user": user_data.user,
+                  "id_empresa": user_data.id_empresa
                   }
         encode.update({"exp": expires})
         return jwt.encode(encode, self.secret, algorithm=self.algorithm)
@@ -41,6 +40,7 @@ class JWTService:
             return payload
 
         except JWTError as e:
+            print("----------------------------------------------------")
             print("Error al decodificar token:", str(e))
             raise HTTPException(
                 status_code=401, detail="Bardo aca")
