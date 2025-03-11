@@ -76,7 +76,8 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Respon
     TwilioClient().send_message(**twilio_params_1)
     TwilioClient().send_message(**twilio_params_2)
 
-    response = JSONResponse(content="Message sent successfully.")
+    response = JSONResponse(content="Message sent successfully.", headers={
+                            'set-cookie': f"{body.telefono}={json.dumps(cookie_dic)}"})
 
     response.set_cookie(key=f"{body.telefono}",
                         value=json.dumps(cookie_dic))
