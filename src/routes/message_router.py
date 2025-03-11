@@ -79,7 +79,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     response = JSONResponse(content="Message sent successfully.")
 
     response.set_cookie(key=f"{body.telefono}",
-                        value=json.dumps(cookie_dic), secure=True, httponly=True, samesite="strict",path="/survey")
+                        value=json.dumps(cookie_dic), secure=True, httponly=True)
 
     return response
 
@@ -93,7 +93,7 @@ async def response(db: db_deps, req: Request):
     # Traigo info de cookies del tel "x"
     cookie_name = f"+{form_data['WaId']}"
     print(cookie_name)
-    print(req)
+    print(req.cookies)
     cookie_value = req.cookies.get(cookie_name)
     print("3")
     print(cookie_value)
