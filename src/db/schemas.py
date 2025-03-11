@@ -20,6 +20,7 @@ class Templates(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     descripcion = Column(String(100), nullable=False)
+    id_set_preguntas = Column(Integer, nullable=False)
     id_contenido = Column(String(100), nullable=False)
     id_servicio_mensajeria = Column(String(100), nullable=True)
 
@@ -31,6 +32,8 @@ class Surveys(Base):
     id_encuesta = Column(Integer, nullable=False)
     id_empresa = Column(Integer, nullable=False)
     id_campania = Column(Integer, nullable=False)
+    id_grupo = Column(Integer, nullable=False)
+    id_subgrupo = Column(Integer, nullable=False)
     created_at = Column(TIMESTAMP, nullable=False,
                         default=datetime.now(timezone.utc))
 
