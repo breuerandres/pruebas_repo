@@ -92,7 +92,7 @@ async def response(db: db_deps, req: Request):
 
     # Traigo info de cookies del tel "x"
     cookie_name = f"+{form_data['WaId']}"
-    print("2")
+    print(cookie_name)
     cookie_value = req.cookies.get(cookie_name)
     print("3")
     print(cookie_value)
