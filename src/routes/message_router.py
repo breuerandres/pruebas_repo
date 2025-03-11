@@ -27,7 +27,7 @@ auth_deps = Annotated[dict, Depends(jwt.verify_access_token)]
 
 
 @message_router.post("/", status_code=status.HTTP_200_OK)
-def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Response):
+def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     survey_model = Surveys(
         id_encuesta=int(body.id_encuesta),
         id_empresa=int(user["id_empresa"]),
