@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Cookie
 from fastapi.responses import JSONResponse
 from src.db.schemas import Surveys, Templates
 from requests import Session
@@ -47,10 +47,13 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Respon
 
     }
 
-    saludo_bienvenida = db.query(Templates).filter(
-        Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'saludo_bienvenida').first()
-    pregunta_1 = db.query(Templates).filter(Templates.id_set_preguntas ==
-                                            body.id_set_preguntas, Templates.descripcion == 'encuesta_pregunta_1').first()
+    saludo_bienvenida = db.query(Templates)\
+        .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'saludo_bienvenida')\
+        .first()
+
+    pregunta_1 = db.query(Templates)\
+        .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'encuesta_pregunta_1')\
+        .first()
 
     # Orden de Variables en Twilio: 1: Nombre, 2: Vehiculo, 3: Sucursal
 
@@ -82,12 +85,17 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Respon
 
 
 @message_router.post("/response", status_code=status.HTTP_200_OK)
-async def response(req: Request):
+async def response(db: db_deps, req: Request, cookies: dict = Cookie()):
     # Extraigo data del cuerpo del request
     form_data = await req.form()
 
     # Traigo info de cookies del tel "x"
-
+    cookie_name = f"+{form_data['WaId']}"
+    cookie_value = cookies.get(cookie_name)
+    cookie_dict = json.loads(cookie_value)
+    print(cookie_dict)
+    if cookie_value is None:
+        raise HTTPException(status_code=404, detail="Cookie not found")
     # Traigo set de preguntas
 
     # Valido respuesta desde menu
@@ -97,7 +105,7 @@ async def response(req: Request):
     # Si ultima pregunta -> msg despedida -> borrar cookies
 
     # SINO Envio pregunta i+1
-
+    '''
     print("Datos recibidos en el webhook:")
     for key, value in form_data.items():
         print(f"{key}: {value}")
@@ -136,5 +144,5 @@ async def response(req: Request):
         TwilioClient().send_message(**twilio_params)
 
         return "OK Pregunta 3"
-
+    '''
     return "OK"
