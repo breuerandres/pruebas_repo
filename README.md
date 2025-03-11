@@ -12,7 +12,7 @@ Esta es una API desarrollada con FastAPI para gestionar encuestas a través de W
 
 Antes de ejecutar la aplicación, asegúrate de tener instalados los siguientes requisitos:
 
-- Python 3.9+
+- Python 3.10+
 - `pip` y `venv` para la gestión de paquetes
 
 ## Instalación y Ejecución
@@ -41,14 +41,14 @@ Antes de ejecutar la aplicación, asegúrate de tener instalados los siguientes 
    Crea un archivo `.env` en la raíz del proyecto y define las siguientes variables:
 
    ```ini
-   WHATSAPP_API_KEY=tu_api_key
+   TWILIO_API_KEY=tu_api_key
    DATABASE_URL=sqlite:///./database.db  # O la URL de tu base de datos
    ```
 
 5. Ejecuta la aplicación:
 
    ```bash
-   uvicorn uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
+   uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
    ```
 
 6. Accede a la documentación de la API:
@@ -60,6 +60,5 @@ Antes de ejecutar la aplicación, asegúrate de tener instalados los siguientes 
 - FastAPI
 - Uvicorn
 - SQLAlchemy
-- Twilio API (o la API de WhatsApp que estés usando)
+- Twilio API
 - JWT
-  está bajo la licencia MIT.
