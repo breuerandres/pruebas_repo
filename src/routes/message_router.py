@@ -85,9 +85,9 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Respon
 
 
 @message_router.post("/response", status_code=status.HTTP_200_OK)
-async def response(db: db_deps, req: Request):
+async def response(db: db_deps, req: Request, tel: str = Cookie(None)):
     # Extraigo data del cuerpo del request
-    print("1")
+    print(tel)
     form_data = await req.form()
 
     # Traigo info de cookies del tel "x"
