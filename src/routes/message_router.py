@@ -87,13 +87,18 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Respon
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(db: db_deps, req: Request, cookies: dict = Cookie()):
     # Extraigo data del cuerpo del request
+    print("1")
     form_data = await req.form()
 
     # Traigo info de cookies del tel "x"
     cookie_name = f"+{form_data['WaId']}"
+    print("2")
     cookie_value = cookies[cookie_name]
+    print("3")
     cookie_dict = json.loads(cookie_value)
+    print("4")
     print(cookie_dict)
+
     if cookie_value is None:
         raise HTTPException(status_code=404, detail="Cookie not found")
     # Traigo set de preguntas
