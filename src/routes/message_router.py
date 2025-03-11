@@ -79,7 +79,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     response = JSONResponse(content="Message sent successfully.")
 
     response.set_cookie(key=f"{body.telefono}",
-                        value=json.dumps(cookie_dic))
+                        value=json.dumps(cookie_dic), secure=True, httponly=True, samesite="strict")
 
     return response
 
