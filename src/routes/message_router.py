@@ -25,9 +25,11 @@ def get_db():
 db_deps = Annotated[Session, Depends(get_db)]
 auth_deps = Annotated[dict, Depends(jwt.verify_access_token)]
 
+cache: dict[str, str] = {}
+
 
 @message_router.post("/", status_code=status.HTTP_200_OK)
-def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Response):
+def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     survey_model = Surveys(
         id_encuesta=int(body.id_encuesta),
         id_empresa=int(user["id_empresa"]),
@@ -35,9 +37,12 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Respon
         id_grupo=int(body.id_grupo),
         id_subgrupo=int(body.id_subgrupo)
     )
-
-    db.add(survey_model)
-    db.commit()
+    try:
+        db.add(survey_model)
+        db.commit()
+    except:
+        raise HTTPException(
+            status_code=400, detail="No se pudo almacenar la encuesta en la base de datos")
 
     cookie_dic = {
         "nombre": body.nombre,
@@ -47,61 +52,56 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey, response: Respon
 
     }
 
-    saludo_bienvenida = db.query(Templates)\
-        .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'saludo_bienvenida')\
-        .first()
+    cache[f"{body.telefono}"] = json.dumps(cookie_dic)
 
-    pregunta_1 = db.query(Templates)\
-        .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'encuesta_pregunta_1')\
-        .first()
+    try:
+        saludo_bienvenida = db.query(Templates)\
+            .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'saludo_bienvenida')\
+            .first()
+
+        pregunta_1 = db.query(Templates)\
+            .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'encuesta_pregunta_1')\
+            .first()
+    except:
+        raise HTTPException(
+            status_code=400, detail="No se encuentran los templates buscados")
 
     # Orden de Variables en Twilio: 1: Nombre, 2: Vehiculo, 3: Sucursal
 
     variables_param = {"1": f"{body.nombre}",
                        "2": f"{body.vehiculo}", "3": f"{body.sucursal}"}
 
-    twilio_params_1 = {
+    twilio_params = {
 
-        "to": f"whatsapp:{body.telefono}",  # saludo bienvenida.messageservice
+        "to": body.telefono,
+        "msg_sid": saludo_bienvenida.id_servicio_mensajeria,
         "content_sid": f"{saludo_bienvenida.id_contenido}",
         "content_variables": json.dumps(variables_param)
     }
-    twilio_params_2 = {
 
-        "to": f"whatsapp:{body.telefono}",
-        "content_sid": f"{pregunta_1.id_contenido}",
-        "content_variables": json.dumps(variables_param)
-    }
+    TwilioClient().send_message(**twilio_params)
 
-    TwilioClient().send_message(**twilio_params_1)
-    TwilioClient().send_message(**twilio_params_2)
+    twilio_params["content_sid"] = f"{pregunta_1.id_contenido}"
 
-    response = JSONResponse(content="Message sent successfully.")
+    TwilioClient().send_message(**twilio_params)
 
-    response.set_cookie(key=f"{body.telefono}",
-                        value=json.dumps(cookie_dic))
+    return JSONResponse(content="Message sent successfully.")
 
-    return response
+
+@message_router.get("/", status_code=status.HTTP_200_OK)
+async def semi_cookie():
+    # data = json.loads(cache)
+    return cache
 
 
 @message_router.post("/response", status_code=status.HTTP_200_OK)
-async def response(db: db_deps, req: Request, tel: str = Cookie()):
+async def response(db: db_deps, req: Request):
     # Extraigo data del cuerpo del request
-    print(tel)
+
     form_data = await req.form()
 
-    # Traigo info de cookies del tel "x"
-    cookie_name = f"+{form_data['WaId']}"
-    print(cookie_name)
-    cookie_value = req.cookies.get(cookie_name)
-    print("3")
-    print(cookie_value)
-    cookie_dict = json.loads(cookie_value)
-    print("4")
-    print(cookie_dict)
+    # Traigo info de cookies del cache
 
-    if cookie_value is None:
-        raise HTTPException(status_code=404, detail="Cookie not found")
     # Traigo set de preguntas
 
     # Valido respuesta desde menu

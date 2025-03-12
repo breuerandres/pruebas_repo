@@ -40,7 +40,6 @@ class JWTService:
             return payload
 
         except JWTError as e:
-            print("----------------------------------------------------")
-            print("Error al decodificar token:", str(e))
+
             raise HTTPException(
-                status_code=401, detail="Bardo aca")
+                status_code=401, detail="Token Incorrecto")

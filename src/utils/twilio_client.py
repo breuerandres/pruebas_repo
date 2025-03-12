@@ -10,7 +10,7 @@ class TwilioClient:
         self.client = Client(settings.TWILIO_ACCOUNT_SID,
                              settings.TWILIO_AUTH_TOKEN)
 
-    def send_message(self, to: str, content_sid: str, **kwargs) -> None:
+    def send_message(self, msg_sid: str, to: str, content_sid: str, **kwargs) -> None:
         """
         Envía un mensaje de WhatsApp usando Twilio.
 
@@ -23,8 +23,9 @@ class TwilioClient:
         """
         message_data = {
             # from cambia a messaging_service_sid
-            "from_": f'whatsapp:{settings.TWILIO_SENDER_NUMBER}',
-            "to": to,
+            # "from_": f"whatsapp:{settings.TWILIO_SENDER_NUMBER}",
+            "messaging_service_sid": msg_sid,
+            "to": f"whatsapp:{to}",
             "content_sid": content_sid
         }
 
