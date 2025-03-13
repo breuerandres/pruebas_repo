@@ -23,7 +23,7 @@ class TwilioClient:
         """
         message_data = {
             # from cambia a messaging_service_sid
-            # "from_": f"whatsapp:{settings.TWILIO_SENDER_NUMBER}",
+            "from_": f"whatsapp:{settings.TWILIO_SENDER_NUMBER}",
             "messaging_service_sid": msg_sid,
             "to": f"whatsapp:{to}",
             "content_sid": content_sid

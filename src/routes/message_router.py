@@ -88,12 +88,6 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     return JSONResponse(content="Message sent successfully.")
 
 
-@message_router.get("/", status_code=status.HTTP_200_OK)
-async def semi_cookie():
-    # data = json.loads(cache)
-    return cache
-
-
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(db: db_deps, req: Request):
     # Extraigo data del cuerpo del request
