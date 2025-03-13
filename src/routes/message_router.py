@@ -88,6 +88,11 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     return JSONResponse(content="Message sent successfully.")
 
 
+@message_router.post("/status", status_code=status.HTTP_200_OK)
+async def status(req: Request):
+    return "OK"
+
+
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(db: db_deps, req: Request):
     # Extraigo data del cuerpo del request
