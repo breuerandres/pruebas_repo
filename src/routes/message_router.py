@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Cookie
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import JSONResponse
 from src.db.schemas import Surveys, Templates
 from requests import Session
@@ -75,21 +75,22 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
         "to": body.telefono,
         "msg_sid": saludo_bienvenida.id_servicio_mensajeria,
-        "content_sid": f"{saludo_bienvenida.id_contenido}",
+        # "content_sid": f"{saludo_bienvenida.id_contenido}",
+        "content_sid": "HX37c73b1622a347f291e22bdd5ebba618",
         "content_variables": json.dumps(variables_param)
     }
 
     TwilioClient().send_message(**twilio_params)
 
-    twilio_params["content_sid"] = f"{pregunta_1.id_contenido}"
+    # twilio_params["content_sid"] = f"{pregunta_1.id_contenido}"
 
-    TwilioClient().send_message(**twilio_params)
+    # TwilioClient().send_message(**twilio_params)
 
     return JSONResponse(content="Message sent successfully.")
 
 
 @message_router.post("/status", status_code=status.HTTP_200_OK)
-async def status(req: Request):
+async def status_callback(req: Request):
     return "OK"
 
 
