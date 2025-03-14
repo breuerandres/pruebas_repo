@@ -119,7 +119,7 @@ async def response(db: db_deps, req: Request):
         print("4")
         twilio_params = {
 
-            "to": form_data['From'],
+            "to": f"+{form_data['WaId']}",
             "msg_sid": form_data['MessagingServiceSid'],
             # "content_sid": f"{saludo_bienvenida.id_contenido}",
             "content_sid": "HXcf95300b91bde467ad1626013600b310",
@@ -128,6 +128,7 @@ async def response(db: db_deps, req: Request):
 
         print("5")
         TwilioClient().send_message(**twilio_params)
+        print("6")
 
     '''
     
