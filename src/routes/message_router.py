@@ -7,6 +7,7 @@ from src.utils.twilio_client import TwilioClient
 from src.utils.config import Settings
 from src.models.send_survey_model import SendSurvey
 from src.auth.jwt_service import JWTService
+from src.utils.chaching import AsyncCache
 from src.db.databases import local_session
 import json
 
@@ -28,11 +29,11 @@ def get_db():
 db_deps = Annotated[Session, Depends(get_db)]
 auth_deps = Annotated[dict, Depends(jwt.verify_access_token)]
 
-cache: dict[str, str] = {}
+cache: AsyncCache = AsyncCache()
 
 
 @message_router.post("/", status_code=status.HTTP_200_OK)
-def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
+async def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     survey_model = Surveys(
         id_encuesta=int(body.id_encuesta),
         id_empresa=int(user["id_empresa"]),
@@ -48,7 +49,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
         raise HTTPException(
             status_code=400, detail="No se pudo almacenar la encuesta en la base de datos")
 
-    cookie_dic = {
+    cookie = {
         "nombre": body.nombre,
         "vehiculo": body.vehiculo,
         "sucursal": body.sucursal,
@@ -58,16 +59,16 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
     }
 
-    cache[f"{body.telefono}"] = json.dumps(cookie_dic)
+    await cache.set(f"{body.telefono}", cookie)
 
-    try:
-        saludo_bienvenida = db.query(Templates)\
-            .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'inicio_encuesta')\
-            .first()
+    # try:
+    #     saludo_bienvenida = db.query(Templates)\
+    #         .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'inicio_encuesta')\
+    #         .first()
 
-    except:
-        raise HTTPException(
-            status_code=400, detail="No se encuentran los templates buscados")
+    # except:
+    #     raise HTTPException(
+    #         status_code=400, detail="No se encuentran los templates buscados")
 
     # Orden de Variables en Twilio: 1: Nombre, 2: Vehiculo, 3: Sucursal
 
@@ -94,7 +95,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
 @message_router.post("/status", status_code=status.HTTP_200_OK)
 async def status_callback(req: Request):
-    return "OK"
+    return await cache.get("+5491154746516")
 
 
 @message_router.post("/response", status_code=status.HTTP_200_OK)
@@ -106,10 +107,9 @@ async def response(db: db_deps, req: Request):
 
     if form_data["From"] != f"whatsapp:{settings.TWILIO_SENDER_NUMBER}":
         print("3")
-        cache = cache[f"+{form_data['WaId']}"]
-        print(cache)
-        cache: dict = json.loads(cache)
-        print(cache)
+        cookie = await cache.get(f"+{form_data['WaId']}")
+        print(cookie)
+
         variables_param = {
             "1": f"{cache['nombre']}", "2": f"{cache['vehiculo']}", "3": f"{cache['sucursal']}"}
 
