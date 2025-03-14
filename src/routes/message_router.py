@@ -101,11 +101,11 @@ async def status_callback(req: Request):
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(db: db_deps, req: Request):
     print("Datos recibidos en el webhook:")
+    form_data = await req.form()
     for key, value in form_data.items():
         print(f"{key}: {value}")
     # Extraigo data del cuerpo del request
     print("1")
-    form_data = await req.form()
     print("2")
 
     if form_data["From"] != f"whatsapp:{settings.TWILIO_SENDER_NUMBER}":
