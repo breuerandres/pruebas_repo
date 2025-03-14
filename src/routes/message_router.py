@@ -100,6 +100,9 @@ async def status_callback(req: Request):
 
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(db: db_deps, req: Request):
+    print("Datos recibidos en el webhook:")
+    for key, value in form_data.items():
+        print(f"{key}: {value}")
     # Extraigo data del cuerpo del request
     print("1")
     form_data = await req.form()
@@ -113,6 +116,7 @@ async def response(db: db_deps, req: Request):
         variables_param = {
             "1": f"{cookie['nombre']}", "2": f"{cookie['vehiculo']}", "3": f"{cookie['sucursal']}"}
 
+        print("4")
         twilio_params = {
 
             "to": form_data['From'],
@@ -122,12 +126,11 @@ async def response(db: db_deps, req: Request):
             "content_variables": json.dumps(variables_param)
         }
 
+        print("5")
         TwilioClient().send_message(**twilio_params)
 
     '''
-    print("Datos recibidos en el webhook:")
-    for key, value in form_data.items():
-        print(f"{key}: {value}")
+    
 
     if "ButtonPayload" in form_data.keys():
         contador_encuesta = form_data["ButtonPayload"].split("-")[1]
