@@ -77,7 +77,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     twilio_params = {
 
         "to": body.telefono,
-        "msg_sid": saludo_bienvenida.id_servicio_mensajeria,
+        "msg_sid": 'MGcd9cd1e41032a3faa74640c02bd7ae4c',
         # "content_sid": f"{saludo_bienvenida.id_contenido}",
         "content_sid": "HX597a969cf5bcd2187a4c09f7656fcba6",
         "content_variables": json.dumps(variables_param)
