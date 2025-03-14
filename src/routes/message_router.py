@@ -76,15 +76,15 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
         "to": body.telefono,
         "msg_sid": saludo_bienvenida.id_servicio_mensajeria,
         # "content_sid": f"{saludo_bienvenida.id_contenido}",
-        "content_sid": "HX37c73b1622a347f291e22bdd5ebba618",
+        "content_sid": "HX597a969cf5bcd2187a4c09f7656fcba6",
         "content_variables": json.dumps(variables_param)
     }
 
     TwilioClient().send_message(**twilio_params)
 
-    twilio_params["content_sid"] = f"{pregunta_1.id_contenido}"
+    # twilio_params["content_sid"] = f"{pregunta_1.id_contenido}"
 
-    TwilioClient().send_message(**twilio_params)
+    # TwilioClient().send_message(**twilio_params)
 
     return JSONResponse(content="Message sent successfully.")
 
@@ -111,10 +111,10 @@ async def response(db: db_deps, req: Request):
     # Si ultima pregunta -> msg despedida -> borrar cookies
 
     # SINO Envio pregunta i+1
-    '''
     print("Datos recibidos en el webhook:")
     for key, value in form_data.items():
         print(f"{key}: {value}")
+    '''
 
     twilio_params = {
         "to": form_data['From'],
