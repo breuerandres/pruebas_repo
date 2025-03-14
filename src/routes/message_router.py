@@ -104,9 +104,9 @@ async def response(db: db_deps, req: Request):
 
     if form_data["From"] != f"whatsapp:{settings.TWILIO_SENDER_NUMBER}":
         cache = cache[f"+{form_data['WaId']}"]
-        cache = json.loads(cache)
-        variables_param = {"1": f"{cache["nombre"]}",
-                           "2": f"{cache["vehiculo"]}", "3": f"{cache["sucursal"]}"}
+        cache: dict = json.loads(cache)
+        variables_param = {
+            "1": f"{cache['nombre']}", "2": f"{cache['vehiculo']}", "3": f"{cache['sucursal']}"}
 
         twilio_params = {
 
