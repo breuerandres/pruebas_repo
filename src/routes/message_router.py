@@ -100,11 +100,16 @@ async def status_callback(req: Request):
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(db: db_deps, req: Request):
     # Extraigo data del cuerpo del request
+    print("1")
     form_data = await req.form()
+    print("2")
 
     if form_data["From"] != f"whatsapp:{settings.TWILIO_SENDER_NUMBER}":
+        print("3")
         cache = cache[f"+{form_data['WaId']}"]
+        print(cache)
         cache: dict = json.loads(cache)
+        print(cache)
         variables_param = {
             "1": f"{cache['nombre']}", "2": f"{cache['vehiculo']}", "3": f"{cache['sucursal']}"}
 
