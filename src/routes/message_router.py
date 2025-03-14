@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from src.db.schemas import Surveys, Templates
 from requests import Session
 from src.utils.twilio_client import TwilioClient
+from src.utils.config import Settings
 from src.models.send_survey_model import SendSurvey
 from src.auth.jwt_service import JWTService
 from src.db.databases import local_session
@@ -12,6 +13,8 @@ import json
 message_router = APIRouter()
 
 jwt = JWTService()
+
+settings = Settings()
 
 
 def get_db():
@@ -40,6 +43,7 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
     try:
         db.add(survey_model)
         db.commit()
+        db.refresh(survey_model)
     except:
         raise HTTPException(
             status_code=400, detail="No se pudo almacenar la encuesta en la base de datos")
@@ -48,7 +52,9 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
         "nombre": body.nombre,
         "vehiculo": body.vehiculo,
         "sucursal": body.sucursal,
-        "id_evento": body.id_evento
+        "id_evento": body.id_evento,
+        "id_set_preguntas": body.id_set_preguntas,
+        "id_survey": survey_model.id
 
     }
 
@@ -56,12 +62,9 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
     try:
         saludo_bienvenida = db.query(Templates)\
-            .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'saludo_bienvenida')\
+            .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'inicio_encuesta')\
             .first()
 
-        pregunta_1 = db.query(Templates)\
-            .filter(Templates.id_set_preguntas == body.id_set_preguntas, Templates.descripcion == 'encuesta_pregunta_1')\
-            .first()
     except:
         raise HTTPException(
             status_code=400, detail="No se encuentran los templates buscados")
@@ -97,9 +100,62 @@ async def status_callback(req: Request):
 @message_router.post("/response", status_code=status.HTTP_200_OK)
 async def response(db: db_deps, req: Request):
     # Extraigo data del cuerpo del request
-
     form_data = await req.form()
 
+    if form_data["From"] != f"whatsapp:{settings.TWILIO_SENDER_NUMBER}":
+        cache = cache[f"+{form_data['WaId']}"]
+        cache = json.loads(cache)
+        variables_param = {"1": f"{cache["nombre"]}",
+                           "2": f"{cache["vehiculo"]}", "3": f"{cache["sucursal"]}"}
+
+        twilio_params = {
+
+            "to": form_data['From'],
+            "msg_sid": form_data['MessagingServiceSid'],
+            # "content_sid": f"{saludo_bienvenida.id_contenido}",
+            "content_sid": "HXcf95300b91bde467ad1626013600b310",
+            "content_variables": json.dumps(variables_param)
+        }
+
+        TwilioClient().send_message(**twilio_params)
+
+    '''
+    print("Datos recibidos en el webhook:")
+    for key, value in form_data.items():
+        print(f"{key}: {value}")
+
+    if "ButtonPayload" in form_data.keys():
+        contador_encuesta = form_data["ButtonPayload"].split("-")[1]
+
+    else:
+        set, contador_encuesta, rta = form_data["ListId"].split("-")
+
+    proxima_pregunta = f"encuesta_pregnunta{int(contador_encuesta) + 1}"
+
+    try:
+        templates = db.query(Templates)\
+            .filter(Templates.id_set_preguntas == cache["id_set_preguntas"]).all()
+
+        print(templates)
+    except:
+        raise HTTPException(
+            status_code=400, detail="No se encuentran los templates buscados")
+
+    if form_data["From"] != f"whatsapp:{settings.TWILIO_SENDER_NUMBER}":
+
+        variables_param = {"1": f"{cache["nombre"]}",
+                           "2": f"{cache["vehiculo"]}", "3": f"{cache["sucursal"]}"}
+
+        twilio_params = {
+
+            "to": form_data['From'],
+            "msg_sid": form_data['MessagingServiceSid'],
+            # "content_sid": f"{saludo_bienvenida.id_contenido}",
+            "content_sid": "HXcf95300b91bde467ad1626013600b310",
+            "content_variables": json.dumps(variables_param)
+        }
+
+        TwilioClient().send_message(**twilio_params)'''
     # Traigo info de cookies del cache
 
     # Traigo set de preguntas
@@ -111,44 +167,42 @@ async def response(db: db_deps, req: Request):
     # Si ultima pregunta -> msg despedida -> borrar cookies
 
     # SINO Envio pregunta i+1
-    print("Datos recibidos en el webhook:")
-    for key, value in form_data.items():
-        print(f"{key}: {value}")
     '''
 
-    twilio_params = {
-        "to": form_data['From'],
-    }
-    if "ListId" not in form_data.keys():
+        twilio_params = {
+            "to": form_data['From'],
+        }
+        if "ListId" not in form_data.keys():
 
-        twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
-        print("ok con param")
-        try:
+            twilio_params["content_sid"] = "HX36a645432d650430b76ac3d77b0daa27"
+            print("ok con param")
+            try:
+                TwilioClient().send_message(**twilio_params)
+
+            except Exception as e:
+                print(e)
+
+            return "OK con error de input"
+
+        nro_pregunta, puntaje = form_data["ListId"].split("-")
+        print(form_data['From'])
+
+        if (nro_pregunta == "pregunta_1"):
+            twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
+            TwilioClient().send_message(**twilio_params)
+            return "OK Pregunta 1"
+
+        elif (nro_pregunta == "pregunta_2"):
+            twilio_params["content_sid"] = "HX61f3f5adaf444d5672eb50b868a18756"
+            TwilioClient().send_message(**twilio_params)
+            return "OK Pregunta 2"
+
+        elif (nro_pregunta == "pregunta_3"):
+            twilio_params["content_sid"] = "HX7f7f50fd90601a03d0fb9ecc6cd7390c"
+            twilio_params["content_variables"] = '{"1": "Gustavo"}'
             TwilioClient().send_message(**twilio_params)
 
-        except Exception as e:
-            print(e)
+            return "OK Pregunta 3"
+        '''
 
-        return "OK con error de input"
-
-    nro_pregunta, puntaje = form_data["ListId"].split("-")
-    print(form_data['From'])
-
-    if (nro_pregunta == "pregunta_1"):
-        twilio_params["content_sid"] = "HX804140b99b23eeb9b26cdc5c27dc1d23"
-        TwilioClient().send_message(**twilio_params)
-        return "OK Pregunta 1"
-
-    elif (nro_pregunta == "pregunta_2"):
-        twilio_params["content_sid"] = "HX61f3f5adaf444d5672eb50b868a18756"
-        TwilioClient().send_message(**twilio_params)
-        return "OK Pregunta 2"
-
-    elif (nro_pregunta == "pregunta_3"):
-        twilio_params["content_sid"] = "HX7f7f50fd90601a03d0fb9ecc6cd7390c"
-        twilio_params["content_variables"] = '{"1": "Gustavo"}'
-        TwilioClient().send_message(**twilio_params)
-
-        return "OK Pregunta 3"
-    '''
     return "OK"

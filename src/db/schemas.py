@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import TIMESTAMP, BigInteger, Column, Date, ForeignKey, Integer, String
+from sqlalchemy import TIMESTAMP, BigInteger, Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -29,6 +29,7 @@ class Surveys(Base):
     __tablename__ = "encuestas"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    encuesta_iniciada = Column(Boolean, nullable=False, default=False)
     id_encuesta = Column(Integer, nullable=False)
     id_empresa = Column(Integer, nullable=False)
     id_campania = Column(Integer, nullable=False)
