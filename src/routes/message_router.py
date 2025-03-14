@@ -112,7 +112,7 @@ async def response(db: db_deps, req: Request):
             db, Templates, Templates.id_set_preguntas, cookie['id_set_preguntas'])
 
         print("------Templates:------")
-        print(templates)
+        print(templates[0].descripcion)
     '''
         if "ButtonPayload" in form_data.keys():
             # Envio pregunta 1
