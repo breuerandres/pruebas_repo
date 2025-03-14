@@ -82,9 +82,9 @@ def send_survey(user: auth_deps, db: db_deps, body: SendSurvey):
 
     TwilioClient().send_message(**twilio_params)
 
-    # twilio_params["content_sid"] = f"{pregunta_1.id_contenido}"
+    twilio_params["content_sid"] = f"{pregunta_1.id_contenido}"
 
-    # TwilioClient().send_message(**twilio_params)
+    TwilioClient().send_message(**twilio_params)
 
     return JSONResponse(content="Message sent successfully.")
 
